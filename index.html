@@ -17,6 +17,7 @@
             --word-blue: #2b579a;
             --pdf-red: #b30b00;
             --shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
+            --header-height: 80px;
         }
         * {
             margin: 0;
@@ -30,9 +31,16 @@
             min-height: 100vh;
             display: flex;
             flex-direction: column;
+            padding-top: var(--header-height);
         }
 
+        /* ===== 固定顶部导航 ===== */
         header {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            z-index: 1000;
             background: linear-gradient(135deg, var(--primary), var(--primary-light));
             color: #fff;
             padding: 18px 40px;
@@ -151,7 +159,7 @@
         .search-clear:hover {
             color: var(--text);
         }
-        .search-input:not(:placeholder-shown) ~ .search-clear {
+        .search-input:not(:placeholder-shown)~.search-clear {
             display: block;
         }
 
@@ -318,8 +326,12 @@
             animation: loadingSkeleton 1.5s infinite;
         }
         @keyframes loadingSkeleton {
-            0% { background-position: 200% 0; }
-            100% { background-position: -200% 0; }
+            0% {
+                background-position: 200% 0;
+            }
+            100% {
+                background-position: -200% 0;
+            }
         }
 
         .quality-layout {
@@ -418,28 +430,64 @@
             margin-bottom: 12px;
         }
         @keyframes spin {
-            to { transform: rotate(360deg); }
+            to {
+                transform: rotate(360deg);
+            }
         }
 
         @media (max-width: 1024px) {
-            .law-layout { grid-template-columns: 1fr; }
-            .quality-layout { grid-template-columns: 1fr 1fr; }
+            .law-layout {
+                grid-template-columns: 1fr;
+            }
+            .quality-layout {
+                grid-template-columns: 1fr 1fr;
+            }
         }
         @media (max-width: 700px) {
-            header { flex-direction: column; align-items: stretch; padding: 16px; }
-            .main-nav { justify-content: center; }
-            .quality-layout { grid-template-columns: 1fr; }
-            .law-layout { grid-template-columns: 1fr; }
-            .content-card { padding: 16px; }
-            .doc-links { flex-direction: column; }
-            .btn-doc { justify-content: center; }
-            .container { padding: 0 12px; margin: 16px auto; }
-            .mindmap-grid { grid-template-columns: 1fr 1fr; }
+            :root {
+                --header-height: 120px;
+            }
+            header {
+                flex-direction: column;
+                align-items: stretch;
+                padding: 16px;
+            }
+            .main-nav {
+                justify-content: center;
+            }
+            .quality-layout {
+                grid-template-columns: 1fr;
+            }
+            .law-layout {
+                grid-template-columns: 1fr;
+            }
+            .content-card {
+                padding: 16px;
+            }
+            .doc-links {
+                flex-direction: column;
+            }
+            .btn-doc {
+                justify-content: center;
+            }
+            .container {
+                padding: 0 12px;
+                margin: 16px auto;
+            }
+            .mindmap-grid {
+                grid-template-columns: 1fr 1fr;
+            }
         }
 
         @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(12px); }
-            to { opacity: 1; transform: translateY(0); }
+            from {
+                opacity: 0;
+                transform: translateY(12px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
         }
 
         .data-status {
@@ -458,8 +506,12 @@
             border-radius: 50%;
             margin-right: 6px;
         }
-        .data-status .dot.green { background: #22c55e; }
-        .data-status .dot.red { background: #ef4444; }
+        .data-status .dot.green {
+            background: #22c55e;
+        }
+        .data-status .dot.red {
+            background: #ef4444;
+        }
 
         /* 高级大图灯箱预览 */
         #imageViewer {
@@ -529,6 +581,7 @@
 </head>
 <body>
 
+    <!-- ===== 固定顶部导航 ===== -->
     <header>
         <div class="logo">📑 数字化档案协同平台</div>
         <div class="main-nav">
@@ -780,8 +833,10 @@
 
         let scale = 1;
         let isDragging = false;
-        let startX = 0, startY = 0;
-        let translateX = 0, translateY = 0;
+        let startX = 0,
+            startY = 0;
+        let translateX = 0,
+            translateY = 0;
 
         function openImageViewer(src) {
             viewerImg.src = src;
