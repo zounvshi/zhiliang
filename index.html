@@ -11,21 +11,19 @@
             --secondary: #0d9488;
             --bg: #f8fafc;
             --card: #ffffff;
-            --text: #1e293b;
+            --text: #334155;
             --muted: #64748b;
             --border: #e2e8f0;
             --word-blue: #2b579a;
             --pdf-red: #b30b00;
-            --shadow: 0 4px 20px -2px rgba(50, 50, 93, 0.05), 0 2px 8px -1px rgba(0, 0, 0, 0.02);
-            --header-height: 72px;
-            --radius: 12px;
+            --shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
+            --header-height: 80px;
         }
         * {
             margin: 0;
             padding: 0;
             box-sizing: border-box;
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, 'PingFang SC', 'Microsoft YaHei', sans-serif;
-            -webkit-font-smoothing: antialiased;
+            font-family: 'PingFang SC', 'Microsoft YaHei', sans-serif;
         }
         body {
             background: var(--bg);
@@ -36,150 +34,105 @@
             padding-top: var(--header-height);
         }
 
-        /* ===== 固定顶部导航（强化固定效果） ===== */
+        /* ===== 固定顶部导航 ===== */
         header {
             position: fixed;
             top: 0;
             left: 0;
             width: 100%;
-            height: var(--header-height);
             z-index: 1000;
-            /* 使用完全不透明背景 + 毛玻璃叠加，确保任何情况下都不透底 */
-            background: linear-gradient(135deg, #1e3a8a, #3b82f6);
+            background: linear-gradient(135deg, var(--primary), var(--primary-light));
             color: #fff;
-            padding: 0 40px;
+            padding: 18px 40px;
             display: flex;
             justify-content: space-between;
             align-items: center;
-            /* 增强固定感：底部阴影+内发光 */
-            box-shadow: 0 2px 24px rgba(30, 58, 138, 0.25), 0 8px 32px -8px rgba(0, 0, 0, 0.2);
-            /* 硬件加速，避免 fixed 抖动 */
-            will-change: transform;
-            transform: translateZ(0);
-            backdrop-filter: blur(2px);
-            -webkit-backdrop-filter: blur(2px);
+            flex-wrap: wrap;
+            gap: 12px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
         }
-        /* 顶部光晕装饰线，提升视觉层次 */
-        header::after {
-            content: '';
-            position: absolute;
-            bottom: 0;
-            left: 0;
-            width: 100%;
-            height: 2px;
-            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.25), transparent);
-        }
-
         .logo {
-            font-size: 20px;
+            font-size: 22px;
             font-weight: 700;
             letter-spacing: 0.5px;
-            display: flex;
-            align-items: center;
-            gap: 8px;
-            white-space: nowrap;
         }
         .main-nav {
             display: flex;
-            gap: 12px;
-            flex-shrink: 0;
+            gap: 14px;
+            flex-wrap: wrap;
         }
         .nav-btn {
             background: rgba(255, 255, 255, 0.1);
-            border: 1px solid rgba(255, 255, 255, 0.15);
-            color: rgba(255, 255, 255, 0.9);
-            padding: 8px 20px;
-            border-radius: 20px;
+            border: 1px solid rgba(255, 255, 255, 0.25);
+            color: #fff;
+            padding: 8px 22px;
+            border-radius: 30px;
             cursor: pointer;
-            font-size: 14px;
-            font-weight: 500;
-            transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
-            white-space: nowrap;
+            font-size: 15px;
+            transition: all 0.3s;
         }
         .nav-btn.active,
         .nav-btn:hover {
             background: #fff;
             color: var(--primary);
             font-weight: 600;
-            transform: translateY(-1px);
-            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+            transform: translateY(-2px);
         }
 
         .container {
             max-width: 1400px;
             width: 100%;
-            margin: 24px auto;
+            margin: 28px auto;
             padding: 0 24px;
             flex: 1;
         }
         .section-panel {
             display: none;
-            animation: fadeIn 0.35s cubic-bezier(0.4, 0, 0.2, 1);
+            animation: fadeIn 0.4s ease;
         }
         .section-panel.active {
             display: block;
         }
 
-        /* ===== 双栏布局 ===== */
         .law-layout {
             display: grid;
-            grid-template-columns: 300px 1fr;
-            gap: 24px;
-            align-items: start;
+            grid-template-columns: 280px 1fr;
+            gap: 30px;
+            align-items: start; /* 确保侧边栏高度不被右侧撑大 */
         }
-
-        /* ===== 左侧目录：独立滚动 + sticky 定位 ===== */
+        
+        /* ===== 侧边栏优化（支持固定高度与吸顶） ===== */
         .sidebar {
             background: var(--card);
-            padding: 20px 16px;
-            border-radius: var(--radius);
+            padding: 18px 14px;
+            border-radius: 14px;
             box-shadow: var(--shadow);
-            /* 关键：sticky 定位，使侧边栏在滚动时固定在视口内 */
+            
+            /* 新增与修改：智能吸顶与高度限制，改为 flex 布局 */
             position: sticky;
-            top: calc(var(--header-height) + 24px);
-            /* 最大高度 = 视口 - 顶部导航 - 上下边距，超出则内部滚动 */
-            max-height: calc(100vh - var(--header-height) - 48px);
-            overflow-y: auto;
+            top: calc(var(--header-height) + 28px);
+            max-height: calc(100vh - var(--header-height) - 60px);
             display: flex;
             flex-direction: column;
-            /* 滚动条样式美化 */
-            scrollbar-width: thin;
-            scrollbar-color: #cbd5e1 transparent;
-            transition: box-shadow 0.2s;
         }
-        .sidebar::-webkit-scrollbar {
-            width: 5px;
-        }
-        .sidebar::-webkit-scrollbar-track {
-            background: transparent;
-        }
-        .sidebar::-webkit-scrollbar-thumb {
-            background: #cbd5e1;
-            border-radius: 10px;
-        }
-        .sidebar::-webkit-scrollbar-thumb:hover {
-            background: #94a3b8;
-        }
-
         .sidebar h3 {
             font-size: 15px;
-            color: var(--text);
-            font-weight: 600;
-            margin-bottom: 14px;
-            display: flex;
-            align-items: center;
-            gap: 6px;
-            flex-shrink: 0;
+            color: var(--muted);
+            margin-bottom: 12px;
+            padding-bottom: 10px;
+            border-bottom: 1px solid var(--border);
+            flex-shrink: 0; /* 别被挤压 */
         }
 
+        /* 搜索框样式增强 */
         .search-wrapper {
             margin-bottom: 14px;
             position: relative;
-            flex-shrink: 0;
+            flex-shrink: 0; /* 别被挤压 */
         }
         .search-input {
             width: 100%;
-            padding: 10px 36px 10px 34px;
+            padding: 8px 36px 8px 32px;
             border: 1px solid var(--border);
             border-radius: 8px;
             font-size: 14px;
@@ -191,11 +144,11 @@
         .search-input:focus {
             border-color: var(--primary-light);
             background: #fff;
-            box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.15);
+            box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
         }
         .search-icon {
             position: absolute;
-            left: 12px;
+            left: 10px;
             top: 50%;
             transform: translateY(-50%);
             color: var(--muted);
@@ -204,7 +157,7 @@
         }
         .search-clear {
             position: absolute;
-            right: 12px;
+            right: 10px;
             top: 50%;
             transform: translateY(-50%);
             color: var(--muted);
@@ -212,7 +165,7 @@
             cursor: pointer;
             display: none;
             line-height: 1;
-            padding: 2px;
+            padding: 0 4px;
         }
         .search-clear:hover {
             color: var(--text);
@@ -221,20 +174,34 @@
             display: block;
         }
 
+        /* ===== 法规列表滚动条优化 ===== */
         #lawNavList {
-            overflow-y: auto;
             flex: 1;
+            overflow-y: auto;       /* 溢出时自动出现滑杆 */
+            padding-right: 4px;     /* 为滑杆留出视觉间距 */
         }
+        /* 自定义滚动条样式 */
+        #lawNavList::-webkit-scrollbar {
+            width: 5px;
+        }
+        #lawNavList::-webkit-scrollbar-track {
+            background: transparent;
+        }
+        #lawNavList::-webkit-scrollbar-thumb {
+            background: #cbd5e1;
+            border-radius: 10px;
+        }
+        #lawNavList::-webkit-scrollbar-thumb:hover {
+            background: #94a3b8;
+        }
+
         .law-item {
-            padding: 11px 14px;
+            padding: 10px 14px;
             border-radius: 8px;
             cursor: pointer;
-            margin-bottom: 4px;
+            margin-bottom: 6px;
             font-size: 14px;
-            color: #475569;
-            transition: all 0.2s;
-            line-height: 1.4;
-            border-left: 3px solid transparent;
+            transition: 0.2s;
         }
         .law-item:hover {
             background: #f1f5f9;
@@ -244,7 +211,7 @@
             background: #eff6ff;
             color: var(--primary);
             font-weight: 600;
-            border-left-color: var(--primary);
+            border-left: 4px solid var(--primary);
         }
 
         .law-content {
@@ -254,65 +221,59 @@
         }
         .content-card {
             background: var(--card);
-            border-radius: var(--radius);
-            padding: 24px;
+            border-radius: 14px;
+            padding: 24px 28px;
             box-shadow: var(--shadow);
         }
         .card-title {
-            font-size: 16px;
-            font-weight: 600;
-            margin-bottom: 20px;
+            font-size: 17px;
+            font-weight: 700;
+            margin-bottom: 18px;
             display: flex;
             align-items: center;
             gap: 8px;
-            border-bottom: 1px solid #f1f5f9;
-            padding-bottom: 12px;
-            color: #0f172a;
+            border-bottom: 2px solid #f1f5f9;
+            padding-bottom: 10px;
         }
         .doc-links {
             display: flex;
-            gap: 12px;
+            gap: 14px;
             flex-wrap: wrap;
         }
         .btn-doc {
             display: inline-flex;
             align-items: center;
             gap: 10px;
-            padding: 10px 18px;
+            padding: 10px 20px;
             border-radius: 8px;
             text-decoration: none;
-            font-size: 14px;
             font-weight: 500;
             background: #f8fafc;
             border: 1px solid var(--border);
-            transition: all 0.2s;
+            transition: 0.2s;
         }
         .btn-doc:hover {
             transform: translateY(-2px);
-            box-shadow: 0 6px 12px rgba(0, 0, 0, 0.05);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.06);
         }
         .btn-doc.word {
             color: var(--word-blue);
             border-color: #bcd1f5;
-            background: #f4f8ff;
         }
         .btn-doc.pdf {
             color: var(--pdf-red);
             border-color: #f5bcbc;
-            background: #fff5f5;
         }
-
         .icon-badge {
             display: inline-flex;
             align-items: center;
             justify-content: center;
-            width: 24px;
-            height: 24px;
-            border-radius: 6px;
+            width: 26px;
+            height: 26px;
+            border-radius: 4px;
             font-weight: 700;
             font-size: 11px;
             color: #fff;
-            flex-shrink: 0;
         }
         .icon-badge.word {
             background: var(--word-blue);
@@ -321,56 +282,51 @@
             background: var(--pdf-red);
         }
 
-        /* ===== 思维导图网格 - 修复清晰度 ===== */
         .mindmap-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+            grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
             gap: 20px;
         }
         .mindmap-item {
             position: relative;
             border: 1px solid var(--border);
-            border-radius: 8px;
+            border-radius: 10px;
             overflow: hidden;
             cursor: zoom-in;
-            background: #ffffff;
-            transition: all 0.3s ease;
-            aspect-ratio: 16 / 10;
+            background: #fafcff;
+            transition: all 0.25s ease;
+            aspect-ratio: 4 / 3;
             display: flex;
             align-items: center;
             justify-content: center;
         }
         .mindmap-item:hover {
-            box-shadow: 0 12px 20px -8px rgba(0, 0, 0, 0.15);
-            transform: translateY(-4px);
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+            transform: translateY(-2px);
             border-color: var(--primary-light);
         }
         .mindmap-item img {
             width: 100%;
             height: 100%;
-            /* 关键修复：使用 contain 完整显示图片，保留原始清晰度，不裁剪不拉伸 */
             object-fit: contain;
-            background: #ffffff;
             display: block;
-            transition: transform 0.3s ease;
+            padding: 8px;
+            background: #fff;
         }
-        .mindmap-item:hover img {
-            transform: scale(1.02);
-        }
+        /* 悬浮遮罩文字提示 */
         .mindmap-item::after {
             content: '🔍 点击查看高清大图';
             position: absolute;
             bottom: 0;
             left: 0;
             width: 100%;
-            padding: 10px 0;
-            background: rgba(15, 23, 42, 0.85);
-            backdrop-filter: blur(4px);
+            padding: 8px 0;
+            background: rgba(30, 58, 138, 0.85);
             color: #fff;
             font-size: 12px;
             text-align: center;
             transform: translateY(100%);
-            transition: transform 0.25s ease;
+            transition: transform 0.2s ease;
         }
         .mindmap-item:hover::after {
             transform: translateY(0);
@@ -378,7 +334,7 @@
         .mindmap-item .error-placeholder {
             display: none;
             color: var(--muted);
-            font-size: 13px;
+            font-size: 14px;
         }
         .mindmap-item.error img {
             display: none;
@@ -386,18 +342,16 @@
         .mindmap-item.error .error-placeholder {
             display: block;
         }
-
         .mindmap-empty {
-            padding: 48px;
+            padding: 40px;
             text-align: center;
             color: var(--muted);
             background: #f8fafc;
             border-radius: 8px;
             grid-column: 1 / -1;
-            font-size: 14px;
         }
 
-        /* 骨架屏 */
+        /* 骨架屏动画 */
         .skeleton {
             background: linear-gradient(90deg, #f1f5f9 25%, #e2e8f0 50%, #f1f5f9 75%);
             background-size: 200% 100%;
@@ -412,7 +366,6 @@
             }
         }
 
-        /* 质量文件库布局 */
         .quality-layout {
             display: grid;
             grid-template-columns: repeat(3, 1fr);
@@ -420,10 +373,10 @@
         }
         .quality-col {
             background: var(--card);
-            border-radius: var(--radius);
-            padding: 24px;
+            border-radius: 14px;
+            padding: 22px 24px;
             box-shadow: var(--shadow);
-            border-top: 4px solid var(--secondary);
+            border-top: 5px solid var(--secondary);
         }
         .quality-col.col-2 {
             border-top-color: var(--primary-light);
@@ -431,82 +384,77 @@
         .quality-col.col-3 {
             border-top-color: #8b5cf6;
         }
-
         .col-header {
-            font-size: 16px;
-            font-weight: 600;
-            margin-bottom: 20px;
+            font-size: 17px;
+            font-weight: 700;
+            margin-bottom: 18px;
             display: flex;
             justify-content: space-between;
             align-items: center;
-            color: #0f172a;
+            color: #1e293b;
         }
         .badge {
             background: #f1f5f9;
             font-size: 12px;
-            padding: 3px 10px;
+            padding: 2px 10px;
             border-radius: 20px;
             color: var(--muted);
+            font-weight: 400;
         }
         .file-list {
             display: flex;
             flex-direction: column;
-            gap: 8px;
+            gap: 10px;
         }
         .file-item {
             display: flex;
             justify-content: space-between;
             align-items: center;
-            padding: 12px 14px;
+            padding: 10px 14px;
             border-radius: 8px;
             background: #f8fafc;
             border: 1px solid var(--border);
-            transition: all 0.2s;
+            transition: 0.2s;
         }
         .file-item:hover {
             background: #fff;
             border-color: #cbd5e1;
-            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.03);
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
         }
         .file-info {
             display: flex;
             align-items: center;
             gap: 10px;
             font-size: 14px;
-            font-weight: 500;
-            overflow: hidden;
-            text-overflow: ellipsis;
-            white-space: nowrap;
         }
         .file-info .icon-badge {
             width: 22px;
             height: 22px;
-            font-size: 10px;
+            font-size: 9px;
             flex-shrink: 0;
         }
         .btn-download {
-            color: var(--primary-light);
+            color: var(--muted);
             text-decoration: none;
             font-size: 13px;
-            font-weight: 500;
             padding: 4px 10px;
             border-radius: 4px;
             transition: 0.2s;
         }
         .btn-download:hover {
-            background: #eff6ff;
+            background: var(--border);
+            color: var(--text);
         }
 
         .loading-tip {
             text-align: center;
-            padding: 48px 20px;
+            padding: 40px 20px;
             color: var(--muted);
-            font-size: 14px;
         }
         .loading-tip .spinner {
             display: inline-block;
-            width: 28px;
-            height: 28px;
+            width: 32px;
+            height: 32px;
             border: 3px solid var(--border);
             border-top-color: var(--primary);
             border-radius: 50%;
@@ -519,10 +467,58 @@
             }
         }
 
+        @media (max-width: 1024px) {
+            .law-layout {
+                grid-template-columns: 1fr;
+            }
+            .sidebar {
+                position: static;
+                max-height: 350px; /* 移动端或小屏幕下限制一个固定高度防拉过长 */
+            }
+            .quality-layout {
+                grid-template-columns: 1fr 1fr;
+            }
+        }
+        @media (max-width: 700px) {
+            :root {
+                --header-height: 120px;
+            }
+            header {
+                flex-direction: column;
+                align-items: stretch;
+                padding: 16px;
+            }
+            .main-nav {
+                justify-content: center;
+            }
+            .quality-layout {
+                grid-template-columns: 1fr;
+            }
+            .law-layout {
+                grid-template-columns: 1fr;
+            }
+            .content-card {
+                padding: 16px;
+            }
+            .doc-links {
+                flex-direction: column;
+            }
+            .btn-doc {
+                justify-content: center;
+            }
+            .container {
+                padding: 0 12px;
+                margin: 16px auto;
+            }
+            .mindmap-grid {
+                grid-template-columns: 1fr 1fr;
+            }
+        }
+
         @keyframes fadeIn {
             from {
                 opacity: 0;
-                transform: translateY(8px);
+                transform: translateY(12px);
             }
             to {
                 opacity: 1;
@@ -534,11 +530,10 @@
             font-size: 13px;
             color: var(--muted);
             text-align: right;
-            padding: 6px 12px;
-            background: #e2e8f0;
-            border-radius: 20px;
-            display: inline-flex;
-            align-items: center;
+            padding: 4px 8px;
+            background: #f1f5f9;
+            border-radius: 6px;
+            display: inline-block;
         }
         .data-status .dot {
             display: inline-block;
@@ -548,15 +543,13 @@
             margin-right: 6px;
         }
         .data-status .dot.green {
-            background: #10b981;
-            box-shadow: 0 0 8px #10b981;
+            background: #22c55e;
         }
         .data-status .dot.red {
             background: #ef4444;
-            box-shadow: 0 0 8px #ef4444;
         }
 
-        /* ===== 全屏大图查看器 ===== */
+        /* 高级大图灯箱预览 */
         #imageViewer {
             display: none;
             position: fixed;
@@ -564,8 +557,7 @@
             left: 0;
             width: 100vw;
             height: 100vh;
-            background: rgba(15, 23, 42, 0.95);
-            backdrop-filter: blur(8px);
+            background: rgba(15, 23, 42, 0.93);
             z-index: 99999;
             justify-content: center;
             align-items: center;
@@ -573,127 +565,53 @@
             touch-action: none;
         }
         #viewerImgWrapper {
-            transition: transform 0.1s cubic-bezier(0.25, 1, 0.5, 1);
+            transition: transform 0.08s cubic-bezier(0.25, 1, 0.5, 1);
             transform-origin: center center;
             cursor: grab;
             display: inline-block;
-            will-change: transform;
         }
         #viewerImgWrapper:active {
             cursor: grabbing;
         }
         #viewerImg {
-            max-width: 95vw;
-            max-height: 95vh;
+            max-width: 92vw;
+            max-height: 92vh;
             object-fit: contain;
             user-select: none;
             -webkit-user-drag: none;
             border-radius: 4px;
-            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.7);
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
             background: #fff;
         }
         .viewer-close-btn {
             position: absolute;
-            top: 20px;
-            right: 24px;
+            top: 24px;
+            right: 32px;
             color: rgba(255, 255, 255, 0.6);
-            font-size: 32px;
+            font-size: 36px;
             cursor: pointer;
             transition: color 0.2s;
+            user-select: none;
             z-index: 10;
-            width: 44px;
-            height: 44px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            background: rgba(255, 255, 255, 0.1);
-            border-radius: 50%;
         }
         .viewer-close-btn:hover {
             color: #fff;
-            background: rgba(255, 255, 255, 0.2);
         }
         .viewer-tips {
             position: absolute;
             bottom: 24px;
             left: 50%;
             transform: translateX(-50%);
-            color: rgba(255, 255, 255, 0.9);
+            color: rgba(255, 255, 255, 0.8);
             font-size: 13px;
             background: rgba(30, 41, 59, 0.8);
             backdrop-filter: blur(4px);
-            padding: 8px 22px;
+            padding: 8px 20px;
             border-radius: 30px;
             pointer-events: none;
-            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.2);
             letter-spacing: 0.5px;
             z-index: 10;
-            white-space: nowrap;
-        }
-
-        /* ===== 响应式适配 ===== */
-        @media (max-width: 1024px) {
-            .law-layout {
-                grid-template-columns: 1fr;
-                gap: 20px;
-            }
-            .sidebar {
-                position: sticky;
-                top: calc(var(--header-height) + 16px);
-                max-height: 300px;
-            }
-            .quality-layout {
-                grid-template-columns: repeat(2, 1fr);
-            }
-        }
-        @media (max-width: 768px) {
-            :root {
-                --header-height: 110px;
-            }
-            header {
-                flex-direction: column;
-                justify-content: center;
-                padding: 12px 16px;
-                gap: 6px;
-                height: var(--header-height);
-            }
-            .logo {
-                font-size: 18px;
-            }
-            .main-nav {
-                gap: 8px;
-                flex-wrap: wrap;
-                justify-content: center;
-            }
-            .nav-btn {
-                font-size: 13px;
-                padding: 6px 14px;
-            }
-            .quality-layout {
-                grid-template-columns: 1fr;
-            }
-            .container {
-                padding: 0 16px;
-                margin: 16px auto;
-            }
-            .sidebar {
-                max-height: 260px;
-                top: calc(var(--header-height) + 12px);
-            }
-            .viewer-tips {
-                display: none;
-            }
-            .mindmap-grid {
-                grid-template-columns: 1fr 1fr;
-            }
-        }
-        @media (max-width: 480px) {
-            .mindmap-grid {
-                grid-template-columns: 1fr;
-            }
-            .sidebar {
-                max-height: 220px;
-            }
         }
     </style>
 </head>
@@ -709,14 +627,14 @@
     </header>
 
     <div class="container">
-        <!-- 法规库面板 -->
+
         <div id="laws" class="section-panel active">
             <div class="law-layout">
                 <div class="sidebar">
                     <h3>📋 法规目录</h3>
                     <div class="search-wrapper">
                         <span class="search-icon">🔍</span>
-                        <input type="text" id="lawSearchInput" class="search-input" placeholder="输入关键字搜索..." />
+                        <input type="text" id="lawSearchInput" class="search-input" placeholder=" " />
                         <span class="search-clear" id="searchClear">×</span>
                     </div>
                     <div id="lawNavList">
@@ -731,18 +649,18 @@
             </div>
         </div>
 
-        <!-- 质量文件库面板 -->
         <div id="quality" class="section-panel">
             <div id="qualityContent">
                 <div class="loading-tip"><div class="spinner"></div><p>加载中...</p></div>
             </div>
         </div>
+
     </div>
 
-    <!-- 全屏高清大图查看器 -->
+    <!-- 全屏高阶大图查看器 -->
     <div id="imageViewer">
         <span class="viewer-close-btn" id="closeViewer">&times;</span>
-        <div class="viewer-tips">🖱️ 滚轮缩放 | 🤝 拖拽平移 | 📱 双指缩放 | 双击复原</div>
+        <div class="viewer-tips">🖱️ 鼠标滚轮缩放 | 🤝 按住拖拽平移 | 双击复原</div>
         <div id="viewerImgWrapper">
             <img id="viewerImg" src="" alt="大图查看" />
         </div>
@@ -755,6 +673,7 @@
         const DATA_URL = 'data.json';
         let appData = null;
 
+        // 默认空数据（外部加载失败时使用）
         const DEFAULT_DATA = {
             laws: [],
             quality: { systems: [], sops: [], duties: [] }
@@ -767,6 +686,7 @@
                 const json = await resp.json();
                 if (json.laws && json.quality) {
                     appData = json;
+                    console.log('✅ 加载外部 data.json 成功');
                     return;
                 } else {
                     throw new Error('数据格式不完整');
@@ -778,7 +698,7 @@
         }
 
         // ================================================================
-        //  渲染逻辑
+        //  页面渲染逻辑
         // ================================================================
         function renderLawNav(laws) {
             const container = document.getElementById('lawNavList');
@@ -813,6 +733,7 @@
                 return;
             }
 
+            // 文档附件
             const docsHtml = (law.docs && law.docs.length > 0) ?
                 law.docs.map(d => {
                     const cls = d.type === 'pdf' ? 'pdf' : 'word';
@@ -820,8 +741,10 @@
                     return `<a href="${d.url || '#'}" target="_blank" class="btn-doc ${cls}">
                                 <span class="icon-badge ${cls}">${icon}</span> ${d.label}
                             </a>`;
-                }).join('') : '<span style="color:var(--muted);font-size:14px;">暂无附件</span>';
+                }).join('') :
+                '<span style="color:var(--muted);font-size:14px;">暂无附件</span>';
 
+            // 思维导图（增强图片加载失败处理）
             let mindmapsHtml = '';
             if (law.mindmaps && law.mindmaps.length > 0) {
                 mindmapsHtml = law.mindmaps.map(src => `
@@ -842,7 +765,7 @@
                     <div class="doc-links">${docsHtml}</div>
                 </div>
                 <div class="content-card">
-                    <div class="card-title">💡 思维导图 (支持滚轮/双指缩放、拖拽查看)</div>
+                    <div class="card-title">💡 思维导图 (支持滚轮缩放、拖拽查看)</div>
                     <div class="mindmap-grid">${mindmapsHtml}</div>
                 </div>
             `;
@@ -859,7 +782,7 @@
                 if (!files || files.length === 0) return '<div style="color:var(--muted);font-size:14px;padding:8px 0;">暂无文件</div>';
                 return files.map(f =>
                     `<div class="file-item">
-                        <div class="file-info" title="${f.label || '未命名文件'}">
+                        <div class="file-info">
                             <span class="icon-badge word">W</span>
                             <span>${f.label || '未命名文件'}</span>
                         </div>
@@ -902,11 +825,10 @@
         }
 
         // ================================================================
-        //  搜索（防抖）
+        //  搜索功能（含清空按钮）
         // ================================================================
         const searchInput = document.getElementById('lawSearchInput');
         const searchClear = document.getElementById('searchClear');
-        let searchTimer = null;
 
         function filterLaws() {
             const query = searchInput.value.trim().toLowerCase();
@@ -917,11 +839,7 @@
             renderLawNav(filtered);
         }
 
-        searchInput.addEventListener('input', () => {
-            clearTimeout(searchTimer);
-            searchTimer = setTimeout(filterLaws, 200);
-        });
-
+        searchInput.addEventListener('input', filterLaws);
         searchClear.addEventListener('click', function() {
             searchInput.value = '';
             filterLaws();
@@ -942,7 +860,7 @@
         });
 
         // ================================================================
-        //  大图查看器（支持 PC + 移动端）
+        //  高阶大图查看组件（优化缩放参数）
         // ================================================================
         const viewer = document.getElementById('imageViewer');
         const viewerImg = document.getElementById('viewerImg');
@@ -955,14 +873,15 @@
             startY = 0;
         let translateX = 0,
             translateY = 0;
-        let touchStartDist = 0;
-        let initialScale = 1;
 
         function openImageViewer(src) {
             viewerImg.src = src;
             viewer.style.display = 'flex';
             document.body.style.overflow = 'hidden';
             resetViewer();
+            // 预加载
+            const tempImg = new Image();
+            tempImg.src = src;
         }
 
         function closeImageViewer() {
@@ -985,69 +904,38 @@
         viewer.addEventListener('click', (e) => {
             if (e.target === viewer || e.target === wrapper) closeImageViewer();
         });
-        window.addEventListener('keydown', (e) => {
-            if (e.key === 'Escape') closeImageViewer();
-        });
 
-        // 鼠标滚轮
+        // 滚轮缩放 - 更平滑的参数
         viewer.addEventListener('wheel', (e) => {
             e.preventDefault();
             const step = 0.1;
             if (e.deltaY < 0) {
-                scale = Math.min(scale + step * scale, 15);
+                scale = Math.min(scale + step * scale, 20);
             } else {
-                scale = Math.max(scale - step * scale, 0.3);
+                scale = Math.max(scale - step * scale, 0.2);
             }
             updateTransform();
         }, { passive: false });
 
-        // PC 拖拽
+        // 拖拽
         viewer.addEventListener('mousedown', (e) => {
             if (e.target === closeBtn) return;
             isDragging = true;
             startX = e.clientX - translateX;
             startY = e.clientY - translateY;
         });
+
         window.addEventListener('mousemove', (e) => {
             if (!isDragging) return;
             translateX = e.clientX - startX;
             translateY = e.clientY - startY;
             updateTransform();
         });
-        window.addEventListener('mouseup', () => { isDragging = false; });
 
-        // 移动端手势
-        viewer.addEventListener('touchstart', (e) => {
-            if (e.touches.length === 2) {
-                touchStartDist = Math.hypot(
-                    e.touches[0].clientX - e.touches[1].clientX,
-                    e.touches[0].clientY - e.touches[1].clientY
-                );
-                initialScale = scale;
-            } else if (e.touches.length === 1) {
-                isDragging = true;
-                startX = e.touches[0].clientX - translateX;
-                startY = e.touches[0].clientY - translateY;
-            }
-        }, { passive: true });
+        window.addEventListener('mouseup', () => {
+            isDragging = false;
+        });
 
-        viewer.addEventListener('touchmove', (e) => {
-            e.preventDefault();
-            if (e.touches.length === 2) {
-                const dist = Math.hypot(
-                    e.touches[0].clientX - e.touches[1].clientX,
-                    e.touches[0].clientY - e.touches[1].clientY
-                );
-                scale = Math.min(Math.max((dist / touchStartDist) * initialScale, 0.3), 15);
-                updateTransform();
-            } else if (e.touches.length === 1 && isDragging) {
-                translateX = e.touches[0].clientX - startX;
-                translateY = e.touches[0].clientY - startY;
-                updateTransform();
-            }
-        }, { passive: false });
-
-        viewer.addEventListener('touchend', () => { isDragging = false; });
         viewer.addEventListener('dblclick', resetViewer);
 
         // ================================================================
@@ -1058,11 +946,20 @@
             renderAll();
 
             const statusEl = document.createElement('div');
-            statusEl.style.cssText = 'text-align:center;padding:24px 0 8px;margin-top:24px;';
+            statusEl.style.cssText = 'text-align:center;font-size:13px;color:var(--muted);padding:16px 0 8px;border-top:1px solid var(--border);margin-top:24px;';
             const isExternal = appData && appData !== DEFAULT_DATA && appData.laws && appData.laws.length > 0;
-            let statusText = isExternal ? '数据同步成功' : '使用内置空数据（未找到 data.json）';
-            let dotClass = isExternal ? 'green' : 'red';
-
+            let statusText = '';
+            let dotClass = 'red';
+            if (isExternal) {
+                statusText = '✓ 数据加载成功';
+                dotClass = 'green';
+            } else if (appData === DEFAULT_DATA) {
+                statusText = 'ℹ️ 使用内置空数据（未找到 data.json）';
+                dotClass = 'red';
+            } else {
+                statusText = '⚠️ 数据为空，请检查 data.json 内容';
+                dotClass = 'red';
+            }
             statusEl.innerHTML = `
                 <span class="data-status">
                     <span class="dot ${dotClass}"></span>
