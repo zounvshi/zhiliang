@@ -105,15 +105,15 @@
             padding-bottom: 10px;
             border-bottom: 1px solid var(--border);
         }
-        
-        /* 搜索框新样式 */
+
+        /* 搜索框样式增强 */
         .search-wrapper {
             margin-bottom: 14px;
             position: relative;
         }
         .search-input {
             width: 100%;
-            padding: 8px 12px 8px 32px;
+            padding: 8px 36px 8px 32px;
             border: 1px solid var(--border);
             border-radius: 8px;
             font-size: 14px;
@@ -135,6 +135,24 @@
             color: var(--muted);
             font-size: 14px;
             pointer-events: none;
+        }
+        .search-clear {
+            position: absolute;
+            right: 10px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: var(--muted);
+            font-size: 16px;
+            cursor: pointer;
+            display: none;
+            line-height: 1;
+            padding: 0 4px;
+        }
+        .search-clear:hover {
+            color: var(--text);
+        }
+        .search-input:not(:placeholder-shown) ~ .search-clear {
+            display: block;
         }
 
         .law-item {
@@ -224,7 +242,6 @@
             background: var(--pdf-red);
         }
 
-        /* 思维导图网格 - 深度体验优化 */
         .mindmap-grid {
             display: grid;
             grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
@@ -256,7 +273,7 @@
             padding: 8px;
             background: #fff;
         }
-        /* 增加悬浮遮罩文字提示 */
+        /* 悬浮遮罩文字提示 */
         .mindmap-item::after {
             content: '🔍 点击查看高清大图';
             position: absolute;
@@ -274,6 +291,17 @@
         .mindmap-item:hover::after {
             transform: translateY(0);
         }
+        .mindmap-item .error-placeholder {
+            display: none;
+            color: var(--muted);
+            font-size: 14px;
+        }
+        .mindmap-item.error img {
+            display: none;
+        }
+        .mindmap-item.error .error-placeholder {
+            display: block;
+        }
         .mindmap-empty {
             padding: 40px;
             text-align: center;
@@ -283,7 +311,7 @@
             grid-column: 1 / -1;
         }
 
-        /* 骨架屏动画占位（图片未加载出来时） */
+        /* 骨架屏动画 */
         .skeleton {
             background: linear-gradient(90deg, #f1f5f9 25%, #e2e8f0 50%, #f1f5f9 75%);
             background-size: 200% 100%;
@@ -433,7 +461,7 @@
         .data-status .dot.green { background: #22c55e; }
         .data-status .dot.red { background: #ef4444; }
 
-        /* 高级大图灯箱预览 CSS 样式 */
+        /* 高级大图灯箱预览 */
         #imageViewer {
             display: none;
             position: fixed;
@@ -515,10 +543,10 @@
             <div class="law-layout">
                 <div class="sidebar">
                     <h3>📋 法规目录</h3>
-                    <!-- 新增搜索框结构 -->
                     <div class="search-wrapper">
                         <span class="search-icon">🔍</span>
                         <input type="text" id="lawSearchInput" class="search-input" placeholder="输入关键字搜索法规..." />
+                        <span class="search-clear" id="searchClear">×</span>
                     </div>
                     <div id="lawNavList">
                         <div class="loading-tip"><div class="spinner"></div><p>加载中...</p></div>
@@ -540,7 +568,7 @@
 
     </div>
 
-    <!-- 全屏高阶大图查看器（灯箱结构） -->
+    <!-- 全屏高阶大图查看器 -->
     <div id="imageViewer">
         <span class="viewer-close-btn" id="closeViewer">&times;</span>
         <div class="viewer-tips">🖱️ 鼠标滚轮缩放 | 🤝 按住拖拽平移 | 双击画布复位</div>
@@ -556,7 +584,7 @@
         const DATA_URL = 'data.json';
         let appData = null;
 
-        // 默认数据（后备，外部 JSON 加载失败时使用）
+        // 默认空数据（外部加载失败时使用）
         const DEFAULT_DATA = {
             laws: [],
             quality: { systems: [], sops: [], duties: [] }
@@ -569,13 +597,13 @@
                 const json = await resp.json();
                 if (json.laws && json.quality) {
                     appData = json;
-                    console.log('✅ 加载外部数据成功');
+                    console.log('✅ 加载外部 data.json 成功');
                     return;
                 } else {
                     throw new Error('数据格式不完整');
                 }
             } catch (err) {
-                console.warn('⚠️ 外部数据加载失败，使用默认数据:', err.message);
+                console.warn('⚠️ 未加载到外部 data.json，使用内置空数据', err.message);
                 appData = DEFAULT_DATA;
             }
         }
@@ -587,7 +615,7 @@
             const container = document.getElementById('lawNavList');
             if (!laws || laws.length === 0) {
                 container.innerHTML = '<div style="padding:16px;color:var(--muted);text-align:center;font-size:14px;">暂无法规数据</div>';
-                renderLawDetail(null); // 清空右侧
+                renderLawDetail(null);
                 return;
             }
             container.innerHTML = laws.map((law, idx) =>
@@ -612,29 +640,32 @@
         function renderLawDetail(law) {
             const container = document.getElementById('lawDetail');
             if (!law) {
-                container.innerHTML = '<div class="loading-tip"><p>暂无选中的法规详情</p></div>';
+                container.innerHTML = '<div class="loading-tip"><p>请选择一条法规查看详情</p></div>';
                 return;
             }
 
-            // 文档附件解析
+            // 文档附件
             const docsHtml = (law.docs && law.docs.length > 0) ?
                 law.docs.map(d => {
                     const cls = d.type === 'pdf' ? 'pdf' : 'word';
                     const icon = d.type === 'pdf' ? 'P' : 'W';
-                    return `<a href="${d.url || '#'}" class="btn-doc ${cls}">
+                    return `<a href="${d.url || '#'}" target="_blank" class="btn-doc ${cls}">
                                 <span class="icon-badge ${cls}">${icon}</span> ${d.label}
                             </a>`;
                 }).join('') :
                 '<span style="color:var(--muted);font-size:14px;">暂无附件</span>';
 
-            // 思维导图解析（升级为触发灯箱组件）
+            // 思维导图（增强图片加载失败处理）
             let mindmapsHtml = '';
             if (law.mindmaps && law.mindmaps.length > 0) {
-                mindmapsHtml = law.mindmaps.map(src =>
-                    `<div class="mindmap-item skeleton" onclick="openImageViewer('${src}')">
-                        <img src="${src}" alt="思维导图" loading="lazy" onload="this.parentElement.classList.remove('skeleton')">
-                    </div>`
-                ).join('');
+                mindmapsHtml = law.mindmaps.map(src => `
+                    <div class="mindmap-item skeleton" onclick="openImageViewer('${src}')">
+                        <img src="${src}" alt="思维导图" loading="lazy"
+                            onload="this.parentElement.classList.remove('skeleton')"
+                            onerror="this.parentElement.classList.remove('skeleton'); this.parentElement.classList.add('error'); this.parentElement.querySelector('.error-placeholder').style.display='block';" />
+                        <span class="error-placeholder">🖼️ 图片加载失败</span>
+                    </div>
+                `).join('');
             } else {
                 mindmapsHtml = '<div class="mindmap-empty">🧩 暂无相关思维导图</div>';
             }
@@ -666,7 +697,7 @@
                             <span class="icon-badge word">W</span>
                             <span>${f.label || '未命名文件'}</span>
                         </div>
-                        <a href="${f.url || '#'}" class="btn-download">下载</a>
+                        <a href="${f.url || '#'}" target="_blank" class="btn-download">下载</a>
                     </div>`
                 ).join('');
             }
@@ -705,25 +736,29 @@
         }
 
         // ================================================================
-        //  搜索功能逻辑
+        //  搜索功能（含清空按钮）
         // ================================================================
         const searchInput = document.getElementById('lawSearchInput');
-        searchInput.addEventListener('input', function() {
-            const query = this.value.trim().toLowerCase();
+        const searchClear = document.getElementById('searchClear');
+
+        function filterLaws() {
+            const query = searchInput.value.trim().toLowerCase();
             if (!appData || !appData.laws) return;
-            
-            // 根据法规名称过滤
-            const filteredLaws = appData.laws.filter(law => {
-                const title = (law.title || '').toLowerCase();
-                return title.includes(query);
-            });
-            
-            // 重新渲染导航列表
-            renderLawNav(filteredLaws);
+            const filtered = appData.laws.filter(law =>
+                (law.title || '').toLowerCase().includes(query)
+            );
+            renderLawNav(filtered);
+        }
+
+        searchInput.addEventListener('input', filterLaws);
+        searchClear.addEventListener('click', function() {
+            searchInput.value = '';
+            filterLaws();
+            searchInput.focus();
         });
 
         // ================================================================
-        //  Tab 切换逻辑
+        //  Tab 切换
         // ================================================================
         document.querySelectorAll('.nav-btn').forEach(btn => {
             btn.addEventListener('click', function() {
@@ -736,7 +771,7 @@
         });
 
         // ================================================================
-        //  高阶大图查看组件（核心优化：支持无限缩放、位置抓取、双击复位）
+        //  高阶大图查看组件（优化缩放参数）
         // ================================================================
         const viewer = document.getElementById('imageViewer');
         const viewerImg = document.getElementById('viewerImg');
@@ -751,17 +786,16 @@
         function openImageViewer(src) {
             viewerImg.src = src;
             viewer.style.display = 'flex';
-            document.body.style.overflow = 'hidden'; // 阻止主页面内容发生滚动
+            document.body.style.overflow = 'hidden';
             resetViewer();
-            
-            // 预加载原图，确保平滑打开
+            // 预加载
             const tempImg = new Image();
             tempImg.src = src;
         }
 
         function closeImageViewer() {
             viewer.style.display = 'none';
-            document.body.style.overflow = ''; // 恢复主页面正常滚动
+            document.body.style.overflow = '';
         }
 
         function resetViewer() {
@@ -775,25 +809,24 @@
             wrapper.style.transform = `translate(${translateX}px, ${translateY}px) scale(${scale})`;
         }
 
-        // 按钮及空白处点击关闭
         closeBtn.addEventListener('click', closeImageViewer);
-        viewer.addEventListener('click', (e) => { 
-            if (e.target === viewer || e.target === wrapper) closeImageViewer(); 
+        viewer.addEventListener('click', (e) => {
+            if (e.target === viewer || e.target === wrapper) closeImageViewer();
         });
 
-        // 鼠标滚轮缩放控制
+        // 滚轮缩放 - 更平滑的参数
         viewer.addEventListener('wheel', (e) => {
             e.preventDefault();
-            let zoomFactor = 0.12;
+            const step = 0.1;
             if (e.deltaY < 0) {
-                scale = Math.min(scale + zoomFactor * scale, 40); // 最高放大40倍
+                scale = Math.min(scale + step * scale, 20);
             } else {
-                scale = Math.max(scale - zoomFactor * scale, 0.1); // 最低缩至0.1倍
+                scale = Math.max(scale - step * scale, 0.2);
             }
             updateTransform();
         }, { passive: false });
 
-        // 拖拽手势/鼠标逻辑
+        // 拖拽
         viewer.addEventListener('mousedown', (e) => {
             if (e.target === closeBtn) return;
             isDragging = true;
@@ -812,24 +845,35 @@
             isDragging = false;
         });
 
-        // 双击画布或图片直接还原尺寸和位置
         viewer.addEventListener('dblclick', resetViewer);
 
         // ================================================================
-        //  系统初始化自执行
+        //  初始化
         // ================================================================
         (async function init() {
             await loadData();
             renderAll();
 
-            // 数据同步状态条组装
             const statusEl = document.createElement('div');
             statusEl.style.cssText = 'text-align:center;font-size:13px;color:var(--muted);padding:16px 0 8px;border-top:1px solid var(--border);margin-top:24px;';
             const isExternal = appData && appData !== DEFAULT_DATA && appData.laws && appData.laws.length > 0;
+            const hasData = appData && appData.laws && appData.laws.length > 0;
+            let statusText = '';
+            let dotClass = 'red';
+            if (isExternal) {
+                statusText = '✓ 外部数据加载成功';
+                dotClass = 'green';
+            } else if (appData === DEFAULT_DATA) {
+                statusText = 'ℹ️ 使用内置空数据（未找到 data.json）';
+                dotClass = 'red';
+            } else {
+                statusText = '⚠️ 数据为空，请检查 data.json 内容';
+                dotClass = 'red';
+            }
             statusEl.innerHTML = `
                 <span class="data-status">
-                    <span class="dot ${isExternal ? 'green' : 'red'}"></span>
-                    ${isExternal ? '✓ 数据同步更新'}
+                    <span class="dot ${dotClass}"></span>
+                    ${statusText}
                 </span>
             `;
             document.querySelector('.container').appendChild(statusEl);
