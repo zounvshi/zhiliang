@@ -101,10 +101,42 @@
         .sidebar h3 {
             font-size: 15px;
             color: var(--muted);
-            margin-bottom: 14px;
+            margin-bottom: 12px;
             padding-bottom: 10px;
             border-bottom: 1px solid var(--border);
         }
+        
+        /* 搜索框新样式 */
+        .search-wrapper {
+            margin-bottom: 14px;
+            position: relative;
+        }
+        .search-input {
+            width: 100%;
+            padding: 8px 12px 8px 32px;
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            font-size: 14px;
+            color: var(--text);
+            outline: none;
+            transition: all 0.2s ease;
+            background: #f8fafc;
+        }
+        .search-input:focus {
+            border-color: var(--primary-light);
+            background: #fff;
+            box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+        }
+        .search-icon {
+            position: absolute;
+            left: 10px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: var(--muted);
+            font-size: 14px;
+            pointer-events: none;
+        }
+
         .law-item {
             padding: 10px 14px;
             border-radius: 8px;
@@ -483,6 +515,11 @@
             <div class="law-layout">
                 <div class="sidebar">
                     <h3>📋 法规目录</h3>
+                    <!-- 新增搜索框结构 -->
+                    <div class="search-wrapper">
+                        <span class="search-icon">🔍</span>
+                        <input type="text" id="lawSearchInput" class="search-input" placeholder="输入关键字搜索法规..." />
+                    </div>
                     <div id="lawNavList">
                         <div class="loading-tip"><div class="spinner"></div><p>加载中...</p></div>
                     </div>
@@ -549,7 +586,8 @@
         function renderLawNav(laws) {
             const container = document.getElementById('lawNavList');
             if (!laws || laws.length === 0) {
-                container.innerHTML = '<div style="padding:16px;color:var(--muted);">暂无法规数据</div>';
+                container.innerHTML = '<div style="padding:16px;color:var(--muted);text-align:center;font-size:14px;">暂无法规数据</div>';
+                renderLawDetail(null); // 清空右侧
                 return;
             }
             container.innerHTML = laws.map((law, idx) =>
@@ -574,7 +612,7 @@
         function renderLawDetail(law) {
             const container = document.getElementById('lawDetail');
             if (!law) {
-                container.innerHTML = '<div class="loading-tip"><p>请选择一条法规</p></div>';
+                container.innerHTML = '<div class="loading-tip"><p>暂无选中的法规详情</p></div>';
                 return;
             }
 
@@ -667,6 +705,24 @@
         }
 
         // ================================================================
+        //  搜索功能逻辑
+        // ================================================================
+        const searchInput = document.getElementById('lawSearchInput');
+        searchInput.addEventListener('input', function() {
+            const query = this.value.trim().toLowerCase();
+            if (!appData || !appData.laws) return;
+            
+            // 根据法规名称过滤
+            const filteredLaws = appData.laws.filter(law => {
+                const title = (law.title || '').toLowerCase();
+                return title.includes(query);
+            });
+            
+            // 重新渲染导航列表
+            renderLawNav(filteredLaws);
+        });
+
+        // ================================================================
         //  Tab 切换逻辑
         // ================================================================
         document.querySelectorAll('.nav-btn').forEach(btn => {
@@ -695,7 +751,7 @@
         function openImageViewer(src) {
             viewerImg.src = src;
             viewer.style.display = 'flex';
-            document.body.style.overflow = 'hidden'; // 阻止主页面内容发生滚动滚动
+            document.body.style.overflow = 'hidden'; // 阻止主页面内容发生滚动
             resetViewer();
             
             // 预加载原图，确保平滑打开
@@ -728,11 +784,11 @@
         // 鼠标滚轮缩放控制
         viewer.addEventListener('wheel', (e) => {
             e.preventDefault();
-            const zoomStep = 0.08;
+            let zoomFactor = 0.12;
             if (e.deltaY < 0) {
-                scale = Math.min(scale + zoomStep * scale, 6); // 最高放大6倍
+                scale = Math.min(scale + zoomFactor * scale, 40); // 最高放大40倍
             } else {
-                scale = Math.max(scale - zoomStep * scale, 0.4); // 最低缩至0.4倍
+                scale = Math.max(scale - zoomFactor * scale, 0.1); // 最低缩至0.1倍
             }
             updateTransform();
         }, { passive: false });
