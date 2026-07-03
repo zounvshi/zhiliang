@@ -545,7 +545,7 @@
                     <h3>📋 法规目录</h3>
                     <div class="search-wrapper">
                         <span class="search-icon">🔍</span>
-                        <input type="text" id="lawSearchInput" class="search-input" placeholder="输入关键字搜索法规..." />
+                        <input type="text" id="lawSearchInput" class="search-input" placeholder=" " />
                         <span class="search-clear" id="searchClear">×</span>
                     </div>
                     <div id="lawNavList">
@@ -861,7 +861,7 @@
             let statusText = '';
             let dotClass = 'red';
             if (isExternal) {
-                statusText = '✓ 外部数据加载成功';
+                statusText = '✓ 数据加载成功';
                 dotClass = 'green';
             } else if (appData === DEFAULT_DATA) {
                 statusText = 'ℹ️ 使用内置空数据（未找到 data.json）';
