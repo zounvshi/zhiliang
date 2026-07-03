@@ -98,7 +98,7 @@
             display: grid;
             grid-template-columns: 280px 1fr;
             gap: 30px;
-            align-items: start; /* 确保侧边栏高度不被右侧撑大 */
+            align-items: start;
         }
         
         /* ===== 侧边栏优化（支持固定高度与吸顶） ===== */
@@ -107,8 +107,6 @@
             padding: 18px 14px;
             border-radius: 14px;
             box-shadow: var(--shadow);
-            
-            /* 新增与修改：智能吸顶与高度限制，改为 flex 布局 */
             position: sticky;
             top: calc(var(--header-height) + 28px);
             max-height: calc(100vh - var(--header-height) - 60px);
@@ -121,14 +119,14 @@
             margin-bottom: 12px;
             padding-bottom: 10px;
             border-bottom: 1px solid var(--border);
-            flex-shrink: 0; /* 别被挤压 */
+            flex-shrink: 0;
         }
 
-        /* 搜索框样式增强 */
+        /* 搜索框样式 */
         .search-wrapper {
             margin-bottom: 14px;
             position: relative;
-            flex-shrink: 0; /* 别被挤压 */
+            flex-shrink: 0;
         }
         .search-input {
             width: 100%;
@@ -174,13 +172,12 @@
             display: block;
         }
 
-        /* ===== 法规列表滚动条优化 ===== */
+        /* ===== 法规列表滚动条 ===== */
         #lawNavList {
             flex: 1;
-            overflow-y: auto;       /* 溢出时自动出现滑杆 */
-            padding-right: 4px;     /* 为滑杆留出视觉间距 */
+            overflow-y: auto;
+            padding-right: 4px;
         }
-        /* 自定义滚动条样式 */
         #lawNavList::-webkit-scrollbar {
             width: 5px;
         }
@@ -313,7 +310,6 @@
             padding: 8px;
             background: #fff;
         }
-        /* 悬浮遮罩文字提示 */
         .mindmap-item::after {
             content: '🔍 点击查看高清大图';
             position: absolute;
@@ -473,7 +469,7 @@
             }
             .sidebar {
                 position: static;
-                max-height: 350px; /* 移动端或小屏幕下限制一个固定高度防拉过长 */
+                max-height: 350px;
             }
             .quality-layout {
                 grid-template-columns: 1fr 1fr;
@@ -526,30 +522,7 @@
             }
         }
 
-        .data-status {
-            font-size: 13px;
-            color: var(--muted);
-            text-align: right;
-            padding: 4px 8px;
-            background: #f1f5f9;
-            border-radius: 6px;
-            display: inline-block;
-        }
-        .data-status .dot {
-            display: inline-block;
-            width: 8px;
-            height: 8px;
-            border-radius: 50%;
-            margin-right: 6px;
-        }
-        .data-status .dot.green {
-            background: #22c55e;
-        }
-        .data-status .dot.red {
-            background: #ef4444;
-        }
-
-        /* 高级大图灯箱预览 */
+        /* 全屏灯箱预览 */
         #imageViewer {
             display: none;
             position: fixed;
@@ -657,7 +630,7 @@
 
     </div>
 
-    <!-- 全屏高阶大图查看器 -->
+    <!-- 全屏灯箱查看器 -->
     <div id="imageViewer">
         <span class="viewer-close-btn" id="closeViewer">&times;</span>
         <div class="viewer-tips">🖱️ 鼠标滚轮缩放 | 🤝 按住拖拽平移 | 双击复原</div>
@@ -673,7 +646,6 @@
         const DATA_URL = 'data.json';
         let appData = null;
 
-        // 默认空数据（外部加载失败时使用）
         const DEFAULT_DATA = {
             laws: [],
             quality: { systems: [], sops: [], duties: [] }
@@ -686,13 +658,12 @@
                 const json = await resp.json();
                 if (json.laws && json.quality) {
                     appData = json;
-                    console.log('✅ 加载外部 data.json 成功');
                     return;
                 } else {
                     throw new Error('数据格式不完整');
                 }
             } catch (err) {
-                console.warn('⚠️ 未加载到外部 data.json，使用内置空数据', err.message);
+                console.warn('⚠️ 未加载到外部 data.json，使用内置空数据');
                 appData = DEFAULT_DATA;
             }
         }
@@ -733,7 +704,6 @@
                 return;
             }
 
-            // 文档附件
             const docsHtml = (law.docs && law.docs.length > 0) ?
                 law.docs.map(d => {
                     const cls = d.type === 'pdf' ? 'pdf' : 'word';
@@ -744,7 +714,6 @@
                 }).join('') :
                 '<span style="color:var(--muted);font-size:14px;">暂无附件</span>';
 
-            // 思维导图（增强图片加载失败处理）
             let mindmapsHtml = '';
             if (law.mindmaps && law.mindmaps.length > 0) {
                 mindmapsHtml = law.mindmaps.map(src => `
@@ -825,7 +794,7 @@
         }
 
         // ================================================================
-        //  搜索功能（含清空按钮）
+        //  搜索功能
         // ================================================================
         const searchInput = document.getElementById('lawSearchInput');
         const searchClear = document.getElementById('searchClear');
@@ -860,7 +829,7 @@
         });
 
         // ================================================================
-        //  高阶大图查看组件（优化缩放参数）
+        //  图片大图查看组件
         // ================================================================
         const viewer = document.getElementById('imageViewer');
         const viewerImg = document.getElementById('viewerImg');
@@ -869,17 +838,14 @@
 
         let scale = 1;
         let isDragging = false;
-        let startX = 0,
-            startY = 0;
-        let translateX = 0,
-            translateY = 0;
+        let startX = 0, startY = 0;
+        let translateX = 0, translateY = 0;
 
         function openImageViewer(src) {
             viewerImg.src = src;
             viewer.style.display = 'flex';
             document.body.style.overflow = 'hidden';
             resetViewer();
-            // 预加载
             const tempImg = new Image();
             tempImg.src = src;
         }
@@ -905,7 +871,6 @@
             if (e.target === viewer || e.target === wrapper) closeImageViewer();
         });
 
-        // 滚轮缩放 - 更平滑的参数
         viewer.addEventListener('wheel', (e) => {
             e.preventDefault();
             const step = 0.1;
@@ -917,7 +882,6 @@
             updateTransform();
         }, { passive: false });
 
-        // 拖拽
         viewer.addEventListener('mousedown', (e) => {
             if (e.target === closeBtn) return;
             isDragging = true;
@@ -944,29 +908,6 @@
         (async function init() {
             await loadData();
             renderAll();
-
-            const statusEl = document.createElement('div');
-            statusEl.style.cssText = 'text-align:center;font-size:13px;color:var(--muted);padding:16px 0 8px;border-top:1px solid var(--border);margin-top:24px;';
-            const isExternal = appData && appData !== DEFAULT_DATA && appData.laws && appData.laws.length > 0;
-            let statusText = '';
-            let dotClass = 'red';
-            if (isExternal) {
-                statusText = '✓ 数据加载成功';
-                dotClass = 'green';
-            } else if (appData === DEFAULT_DATA) {
-                statusText = 'ℹ️ 使用内置空数据（未找到 data.json）';
-                dotClass = 'red';
-            } else {
-                statusText = '⚠️ 数据为空，请检查 data.json 内容';
-                dotClass = 'red';
-            }
-            statusEl.innerHTML = `
-                <span class="data-status">
-                    <span class="dot ${dotClass}"></span>
-                    ${statusText}
-                </span>
-            `;
-            document.querySelector('.container').appendChild(statusEl);
         })();
     </script>
 </body>
